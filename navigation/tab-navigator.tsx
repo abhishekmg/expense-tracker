@@ -1,12 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StackScreenProps } from '@react-navigation/stack';
+import { Text } from 'react-native';
 
 import { RootStackParamList } from '.';
-import { HeaderButton } from '../components/HeaderButton';
-import { TabBarIcon } from '../components/TabBarIcon';
-import One from '../screens/one';
-import Two from '../screens/two';
-
+import ExpenseScreen from '../screens/ExpenseScreen';
 const Tab = createBottomTabNavigator();
 
 type Props = StackScreenProps<RootStackParamList, 'TabNavigator'>;
@@ -15,23 +12,18 @@ export default function TabLayout({ navigation }: Props) {
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: 'black',
+        tabBarActiveTintColor: '#007AFF',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: false,
       }}>
       <Tab.Screen
-        name="One"
-        component={One}
+        name="Expense"
+        component={ExpenseScreen}
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => <HeaderButton onPress={() => navigation.navigate('Modal')} />,
-        }}
-      />
-      <Tab.Screen
-        name="Two"
-        component={Two}
-        options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: '',
+          tabBarIcon: () => (
+            <Text style={{ fontSize: 24 }}>₹</Text>
+          ),
         }}
       />
     </Tab.Navigator>
