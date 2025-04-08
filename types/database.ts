@@ -1,8 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
+
 export type Category = {
   id: string;
   user_id: string;
   name: string;
-  icon: string;
+  icon: keyof typeof Ionicons.glyphMap;
   color: string;
   created_at: string;
   updated_at: string;
@@ -18,6 +20,12 @@ export type Expense = {
   created_at: string;
   updated_at: string;
   metadata: Record<string, any>;
+  category?: {
+    id: string;
+    name: string;
+    icon: keyof typeof Ionicons.glyphMap;
+    color: string;
+  } | null;
 };
 
 export type Database = {
