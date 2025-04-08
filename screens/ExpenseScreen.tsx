@@ -1,36 +1,62 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AddTransactionModal from '../components/AddTransactionModal';
 import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/bottom-sheet';
 import { useAuth } from '../store/AuthContext';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-type Expense = {
-  id: string;
-  amount: number;
-  description: string;
-  date: Date;
-};
+import { getExpenses, addExpense, deleteExpense } from '../services/database';
+import { Expense } from '../types/database';
 
 export default function ExpenseScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
   const { signOut, session } = useAuth();
   const { bottom } = useSafeAreaInsets();
+
   const totalExpense = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
-  const handleAddExpense = (amount: number, description: string) => {
-    const newExpense: Expense = {
-      id: Date.now().toString(),
-      amount,
-      description,
-      date: new Date(),
-    };
-    setExpenses([newExpense, ...expenses]);
-    bottomSheetModalRef.current?.dismiss();
+  const fetchExpenses = async () => {
+    try {
+      const data = await getExpenses();
+      setExpenses(data);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch expenses');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  const handleAddExpense = async (amount: number, description: string) => {
+    try {
+      const newExpense = await addExpense({
+        amount,
+        description,
+        category_id: null, // We'll add category selection later
+        user_id: session?.user?.id || '', // This will be automatically set by RLS
+        metadata: {},
+      });
+      setExpenses([newExpense, ...expenses]);
+      bottomSheetModalRef.current?.dismiss();
+    } catch (error) {
+      console.log('error', error);
+      Alert.alert('Error', 'Failed to add expense');
+    }
+  };
+
+  const handleDeleteExpense = async (id: string) => {
+    try {
+      await deleteExpense(id);
+      setExpenses(expenses.filter(expense => expense.id !== id));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to delete expense');
+    }
   };
 
   const handlePresentModal = useCallback(() => {
@@ -63,7 +89,7 @@ export default function ExpenseScreen() {
       {/* Header with Options Button */}
         <TouchableOpacity
           onPress={handlePresentOptionsModal}
-          className="w-10 h-10 items-center justify-center pl-2"
+          className="w-10 h-10 items-center justify-center"
         >
           <Ionicons name="options-outline" size={24} color="#000" />
         </TouchableOpacity>
@@ -76,7 +102,11 @@ export default function ExpenseScreen() {
 
       {/* Expenses List */}
       <ScrollView className="flex-1">
-        {expenses.length === 0 ? (
+        {loading ? (
+          <View className="flex-1 items-center justify-center p-8">
+            <Text className="text-gray-400">Loading...</Text>
+          </View>
+        ) : expenses.length === 0 ? (
           <View className="flex-1 items-center justify-center p-8">
             <Text className="text-gray-400">No expenses yet</Text>
           </View>
@@ -88,16 +118,24 @@ export default function ExpenseScreen() {
               <View>
                 <Text className="font-medium text-gray-900">{expense.description}</Text>
                 <Text className="text-sm text-gray-400">
-                  {expense.date.toLocaleDateString('en-IN', {
+                  {new Date(expense.created_at).toLocaleDateString('en-IN', {
                     day: 'numeric',
                     month: 'short',
                     year: 'numeric',
                   })}
                 </Text>
               </View>
-              <Text className="text-lg font-semibold text-red-600">
-                -₹{expense.amount.toLocaleString()}
-              </Text>
+              <View className="flex-row items-center">
+                <Text className="text-lg font-semibold text-red-600 mr-4">
+                  -₹{expense.amount.toLocaleString()}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleDeleteExpense(expense.id)}
+                  className="p-2"
+                >
+                  <Ionicons name="trash-outline" size={20} color="#EF4444" />
+                </TouchableOpacity>
+              </View>
             </View>
           ))
         )}
@@ -138,6 +176,7 @@ export default function ExpenseScreen() {
           <Text className="text-gray-500 text-md mb-4">
             {session?.user?.email}
           </Text>
+
           <TouchableOpacity
             onPress={handleLogout}
             className="flex-row items-center p-4 border-b border-gray-100">
