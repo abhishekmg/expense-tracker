@@ -9,6 +9,7 @@ export type Category = {
   created_at: string;
   updated_at: string;
   is_default: boolean;
+  limit: number | null;
 };
 
 export type Expense = {
@@ -25,6 +26,7 @@ export type Expense = {
     name: string;
     icon: keyof typeof Ionicons.glyphMap;
     color: string;
+    limit: number | null;
   } | null;
 };
 

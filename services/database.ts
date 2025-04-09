@@ -11,7 +11,8 @@ export const getExpenses = async (): Promise<Expense[]> => {
         id,
         name,
         icon,
-        color
+        color,
+        limit
       )
     `
     )
@@ -90,35 +91,41 @@ export const DEFAULT_CATEGORIES: Omit<Category, 'id' | 'user_id' | 'created_at' 
       icon: 'restaurant',
       color: '#F59E0B',
       is_default: true,
+      limit: null,
     },
     {
       name: 'Transportation',
       icon: 'car',
       color: '#3B82F6',
       is_default: true,
+      limit: null,
     },
     {
       name: 'Shopping',
       icon: 'cart',
       color: '#8B5CF6',
       is_default: true,
+      limit: null,
     },
     {
       name: 'Entertainment',
       icon: 'game-controller',
       color: '#EC4899',
       is_default: true,
+      limit: null,
     },
     {
       name: 'Bills & Utilities',
       icon: 'receipt',
       color: '#10B981',
       is_default: true,
+      limit: null,
     },
     {
       name: 'Healthcare',
       icon: 'medkit',
       color: '#EF4444',
       is_default: true,
+      limit: null,
     },
   ];

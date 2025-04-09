@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getCategories, addCategory } from '../services/database';
-import { Category } from '../types/database';
+import { getCategories, addCategory, getExpenses } from '../services/database';
+import { Category, Expense } from '../types/database';
 import { Session } from '@supabase/supabase-js';
+import CategoryLimitModal from './CategoryLimitModal';
 
 type Props = {
   onAddTransaction: (amount: number, description: string, categoryId: string | null) => void;
@@ -20,9 +21,13 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryIcon, setNewCategoryIcon] = useState('folder');
   const [loading, setLoading] = useState(true);
+  const [categoryExpenses, setCategoryExpenses] = useState<Record<string, number>>({});
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [selectedCategoryForLimit, setSelectedCategoryForLimit] = useState<Category | null>(null);
 
   useEffect(() => {
     fetchCategories();
+    fetchCategoryExpenses();
   }, []);
 
   const fetchCategories = async () => {
@@ -33,6 +38,23 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
       Alert.alert('Error', 'Failed to fetch categories');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategoryExpenses = async () => {
+    try {
+      const expenses = await getExpenses();
+      const categoryTotals: Record<string, number> = {};
+      
+      expenses.forEach((expense) => {
+        if (expense.category_id) {
+          categoryTotals[expense.category_id] = (categoryTotals[expense.category_id] || 0) + expense.amount;
+        }
+      });
+      
+      setCategoryExpenses(categoryTotals);
+    } catch (error) {
+      console.error('Error fetching category expenses:', error);
     }
   };
 
@@ -51,6 +73,27 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
     if (!selectedCategory) {
       Alert.alert('Error', 'Please select a category');
       return;
+    }
+
+    // Check category limit
+    if (selectedCategory.limit !== null) {
+      const currentTotal = categoryExpenses[selectedCategory.id] || 0;
+      const newTotal = currentTotal + amountNum;
+      
+      if (newTotal > selectedCategory.limit) {
+        Alert.alert(
+          'Category Limit Warning',
+          `Adding this expense will exceed your ${selectedCategory.name} category limit of ₹${selectedCategory.limit}. Current total: ₹${currentTotal}, New total: ₹${newTotal}`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Proceed Anyway', 
+              onPress: () => onAddTransaction(amountNum, description.trim(), selectedCategory.id)
+            }
+          ]
+        );
+        return;
+      }
     }
 
     onAddTransaction(amountNum, description.trim(), selectedCategory.id);
@@ -77,6 +120,16 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
     } catch (error) {
       Alert.alert('Error', 'Failed to create category');
     }
+  };
+
+  const handleSetLimit = (category: Category) => {
+    setSelectedCategoryForLimit(category);
+    setShowLimitModal(true);
+  };
+
+  const handleLimitUpdate = () => {
+    fetchCategories();
+    fetchCategoryExpenses();
   };
 
   return (
@@ -129,13 +182,18 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
 
       {/* Categories Section */}
       <View className="mb-4">
-        <View className="mb-2 flex-row items-center justify-between">
+        <View className="flex-row justify-between items-center mb-2">
           <Text className="text-gray-500">Category</Text>
           <TouchableOpacity
             onPress={() => setIsCreatingCategory(!isCreatingCategory)}
-            className="flex-row items-center">
-            <Ionicons name={isCreatingCategory ? 'close' : 'add'} size={20} color="#3B82F6" />
-            <Text className="ml-1 text-blue-500">
+            className="flex-row items-center"
+          >
+            <Ionicons
+              name={isCreatingCategory ? 'close' : 'add'}
+              size={20}
+              color="#3B82F6"
+            />
+            <Text className="text-blue-500 ml-1">
               {isCreatingCategory ? 'Cancel' : 'New Category'}
             </Text>
           </TouchableOpacity>
@@ -205,26 +263,40 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            className="flex-row space-x-2">
+            className="flex-row space-x-2"
+          >
             {categories.map((category) => (
-              <TouchableOpacity
-                key={category.id}
-                onPress={() => setSelectedCategory(category)}
-                className={`flex-row items-center rounded-full px-3 py-2 ${
-                  selectedCategory?.id === category.id ? 'bg-blue-100' : 'bg-gray-100'
-                }`}>
-                <Ionicons
-                  name={category.icon as any}
-                  size={20}
-                  color={selectedCategory?.id === category.id ? '#3B82F6' : '#666'}
-                />
-                <Text
-                  className={`ml-2 ${
-                    selectedCategory?.id === category.id ? 'text-blue-600' : 'text-gray-600'
-                  }`}>
-                  {category.name}
-                </Text>
-              </TouchableOpacity>
+              <View key={category.id} className="flex-row items-center">
+                <TouchableOpacity
+                  onPress={() => setSelectedCategory(category)}
+                  className={`flex-row items-center px-3 py-2 rounded-full ${
+                    selectedCategory?.id === category.id
+                      ? 'bg-blue-100'
+                      : 'bg-gray-100'
+                  }`}
+                >
+                  <Ionicons
+                    name={category.icon as any}
+                    size={20}
+                    color={selectedCategory?.id === category.id ? '#3B82F6' : '#666'}
+                  />
+                  <Text
+                    className={`ml-2 ${
+                      selectedCategory?.id === category.id
+                        ? 'text-blue-600'
+                        : 'text-gray-600'
+                    }`}
+                  >
+                    {category.name}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleSetLimit(category)}
+                  className="ml-2 p-2"
+                >
+                  <Ionicons name="settings-outline" size={20} color="#666" />
+                </TouchableOpacity>
+              </View>
             ))}
           </ScrollView>
         )}
@@ -234,6 +306,17 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
       <TouchableOpacity onPress={handleSubmit} className="rounded-lg bg-red-600 p-4">
         <Text className="text-center font-medium text-white">Add Expense</Text>
       </TouchableOpacity>
+
+      {showLimitModal && selectedCategoryForLimit && (
+        <CategoryLimitModal
+          category={selectedCategoryForLimit}
+          onClose={() => {
+            setShowLimitModal(false);
+            setSelectedCategoryForLimit(null);
+          }}
+          onUpdate={handleLimitUpdate}
+        />
+      )}
     </View>
   );
 }
