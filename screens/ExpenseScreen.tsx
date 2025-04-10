@@ -7,6 +7,7 @@ import { BottomSheetModal, BottomSheetView, BottomSheetBackdrop } from '@gorhom/
 import { useAuth, AuthProvider } from '../store/AuthContext';
 import { getExpenses, addExpense, deleteExpense } from '../services/database';
 import { Expense } from '../types/database';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ExpenseScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -15,6 +16,7 @@ export default function ExpenseScreen() {
   const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
   const { signOut, session } = useAuth();
   const { bottom } = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   const totalExpense = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
@@ -146,7 +148,12 @@ export default function ExpenseScreen() {
       </ScrollView>
 
       {/* Add Button */}
-      <View className="absolute bottom-4 right-4" style={{ bottom: bottom + 16 }}>
+      <View className="absolute bottom-4 right-4 flex-row" style={{ bottom: bottom + 16 }}>
+        <TouchableOpacity
+          className="h-16 w-16 items-center justify-center rounded-full bg-blue-600 shadow-lg mr-4"
+          onPress={() => navigation.navigate('Reports')}>
+          <Ionicons name="bar-chart" size={24} color="white" />
+        </TouchableOpacity>
         <TouchableOpacity
           className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg"
           onPress={handlePresentModal}>

@@ -7,6 +7,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { AuthProvider, useAuth } from './store/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import ExpenseScreen from './screens/ExpenseScreen';
+import ReportsScreen from './screens/ReportsScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
@@ -23,7 +24,10 @@ function Navigation() {
       {!session ? (
         <Stack.Screen name="Login" component={LoginScreen} />
       ) : (
-        <Stack.Screen name="Expense" component={ExpenseScreen} />
+        <>
+          <Stack.Screen name="Expenses" component={ExpenseScreen} />
+          <Stack.Screen name="Reports" component={ReportsScreen} />
+        </>
       )}
     </Stack.Navigator>
   );

@@ -1,8 +1,8 @@
 import { supabase } from '../utils/supabase';
 import { Expense, Category } from '../types/database';
 
-export const getExpenses = async (): Promise<Expense[]> => {
-  const { data, error } = await supabase
+export const getExpenses = async (month?: number): Promise<Expense[]> => {
+  let query = supabase
     .from('expenses')
     .select(
       `
@@ -17,6 +17,24 @@ export const getExpenses = async (): Promise<Expense[]> => {
     `
     )
     .order('created_at', { ascending: false });
+
+  if (month !== undefined) {
+    const startDate = new Date();
+    startDate.setMonth(month);
+    startDate.setDate(1);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(startDate);
+    endDate.setMonth(month + 1);
+    endDate.setDate(0);
+    endDate.setHours(23, 59, 59, 999);
+
+    query = query
+      .gte('created_at', startDate.toISOString())
+      .lte('created_at', endDate.toISOString());
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return data;

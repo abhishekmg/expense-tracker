@@ -109,7 +109,7 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
       const newCategory = await addCategory({
         name: newCategoryName.trim(),
         icon: newCategoryIcon,
-        color: '#000000', // Default color, can be customized later
+        color: `#${Math.floor(Math.random() * 16777215).toString(16)}`, // Random hex color
         is_default: false,
         user_id: session?.user?.id || '',
       });
