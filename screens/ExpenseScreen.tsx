@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AddTransactionModal from '../components/AddTransactionModal';
@@ -12,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 export default function ExpenseScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isScrolling, setIsScrolling] = useState(false);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const optionsBottomSheetRef = useRef<BottomSheetModal>(null);
   const { signOut, session } = useAuth();
@@ -27,7 +29,7 @@ export default function ExpenseScreen() {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
-    year: 'numeric'
+    year: 'numeric',
   });
 
   const fetchExpenses = async () => {
@@ -95,6 +97,14 @@ export default function ExpenseScreen() {
     []
   );
 
+  const handleScroll = useCallback(() => {
+    setIsScrolling(true);
+  }, []);
+
+  const handleScrollEnd = useCallback(() => {
+    setIsScrolling(false);
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header with Options Button */}
@@ -117,7 +127,11 @@ export default function ExpenseScreen() {
       </View>
 
       {/* Expenses List */}
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        onScrollBeginDrag={handleScroll}
+        onScrollEndDrag={handleScrollEnd}
+        onMomentumScrollEnd={handleScrollEnd}>
         {loading ? (
           <View className="flex-1 items-center justify-center p-8">
             <Text className="text-gray-400">Loading...</Text>
@@ -133,10 +147,10 @@ export default function ExpenseScreen() {
               className="flex-row items-center justify-between border-b border-gray-100 p-4">
               <View className="flex-1 flex-row items-center">
                 <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                  <Ionicons 
-                    name={expense.category?.icon || 'folder'} 
-                    size={20} 
-                    color={expense.category?.color || '#666'} 
+                  <Ionicons
+                    name={expense.category?.icon || 'folder'}
+                    size={20}
+                    color={expense.category?.color || '#666'}
                   />
                 </View>
                 <View className="flex-1">
@@ -164,26 +178,29 @@ export default function ExpenseScreen() {
       </ScrollView>
 
       {/* Action Buttons */}
-      <View className="absolute bottom-4 right-4 flex-row" style={{ bottom: bottom + 16 }}>
-        <TouchableOpacity
-          className="h-16 w-16 items-center justify-center rounded-full bg-blue-600 shadow-lg mr-4"
-          onPress={() => navigation.navigate('Reports')}
-        >
-          <Ionicons name="bar-chart" size={24} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="h-16 w-16 items-center justify-center rounded-full bg-blue-500 shadow-lg mr-4"
-          onPress={() => navigation.navigate('AI')}
-        >
-          <Ionicons name="chatbubble-ellipses" size={24} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg"
-          onPress={handlePresentModal}
-        >
-          <Text className="text-2xl font-bold text-white">+</Text>
-        </TouchableOpacity>
-      </View>
+      {!isScrolling && (
+        <Animated.View
+          className="absolute bottom-4 right-4 flex-row"
+          style={{ bottom: bottom + 16 }}
+          entering={FadeIn.duration(200)}
+          exiting={FadeOut.duration(200)}>
+          <TouchableOpacity
+            className="mr-4 h-16 w-16 items-center justify-center rounded-full bg-blue-600 shadow-lg"
+            onPress={() => navigation.navigate('Reports')}>
+            <Ionicons name="bar-chart" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="mr-4 h-16 w-16 items-center justify-center rounded-full bg-blue-500 shadow-lg"
+            onPress={() => navigation.navigate('AI')}>
+            <Ionicons name="chatbubble-ellipses" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg"
+            onPress={handlePresentModal}>
+            <Text className="text-2xl font-bold text-white">+</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      )}
 
       {/* Add Expense Bottom Sheet */}
       <BottomSheetModal
