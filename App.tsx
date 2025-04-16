@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './store/AuthContext';
 import LoginScreen from './screens/LoginScreen';
 import ExpenseScreen from './screens/ExpenseScreen';
 import ReportsScreen from './screens/ReportsScreen';
+import AIScreen from './screens/AIScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Stack = createNativeStackNavigator();
@@ -27,6 +28,7 @@ function Navigation() {
         <>
           <Stack.Screen name="Expenses" component={ExpenseScreen} />
           <Stack.Screen name="Reports" component={ReportsScreen} />
+          <Stack.Screen name="AI" component={AIScreen} />
         </>
       )}
     </Stack.Navigator>

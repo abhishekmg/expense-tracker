@@ -20,6 +20,16 @@ export default function ExpenseScreen() {
 
   const totalExpense = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
+  // Get current date and month
+  const currentDate = new Date();
+  const monthName = currentDate.toLocaleString('default', { month: 'long' });
+  const formattedDate = currentDate.toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
   const fetchExpenses = async () => {
     try {
       const data = await getExpenses();
@@ -94,6 +104,12 @@ export default function ExpenseScreen() {
         <Ionicons name="options-outline" size={24} color="#000" />
       </TouchableOpacity>
 
+      {/* Date and Month Display */}
+      <View className="items-center justify-center py-4">
+        <Text className="text-2xl font-bold text-gray-900">{monthName}</Text>
+        <Text className="text-sm text-gray-500">{formattedDate}</Text>
+      </View>
+
       {/* Total Expense Display */}
       <View className="flex-1 items-center justify-center">
         <Text className="text-5xl font-bold text-gray-900">₹{totalExpense.toLocaleString()}</Text>
@@ -147,16 +163,24 @@ export default function ExpenseScreen() {
         )}
       </ScrollView>
 
-      {/* Add Button */}
+      {/* Action Buttons */}
       <View className="absolute bottom-4 right-4 flex-row" style={{ bottom: bottom + 16 }}>
         <TouchableOpacity
           className="h-16 w-16 items-center justify-center rounded-full bg-blue-600 shadow-lg mr-4"
-          onPress={() => navigation.navigate('Reports')}>
+          onPress={() => navigation.navigate('Reports')}
+        >
           <Ionicons name="bar-chart" size={24} color="white" />
         </TouchableOpacity>
         <TouchableOpacity
+          className="h-16 w-16 items-center justify-center rounded-full bg-blue-500 shadow-lg mr-4"
+          onPress={() => navigation.navigate('AI')}
+        >
+          <Ionicons name="chatbubble-ellipses" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity
           className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg"
-          onPress={handlePresentModal}>
+          onPress={handlePresentModal}
+        >
           <Text className="text-2xl font-bold text-white">+</Text>
         </TouchableOpacity>
       </View>
