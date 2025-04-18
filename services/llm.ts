@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Expense } from '../types/database';
 
 // Initialize the Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY as string); // User will add their API key
+const genAI = new GoogleGenerativeAI(process.env.EXPO_PUBLIC_GOOGLE_GEMINI_API_KEY as string); // User will add their API key
 
 export async function getAIResponse(query: string, expenses: Expense[]): Promise<string> {
   try {

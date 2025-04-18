@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import AddTransactionModal from '../components/AddTransactionModal';
@@ -9,6 +8,8 @@ import { useAuth, AuthProvider } from '../store/AuthContext';
 import { getExpenses, addExpense, deleteExpense } from '../services/database';
 import { Expense } from '../types/database';
 import { useNavigation } from '@react-navigation/native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import ExpenseList from '../components/ExpenseList';
 
 export default function ExpenseScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -127,76 +128,36 @@ export default function ExpenseScreen() {
       </View>
 
       {/* Expenses List */}
-      <ScrollView
-        className="flex-1"
-        onScrollBeginDrag={handleScroll}
-        onScrollEndDrag={handleScrollEnd}
-        onMomentumScrollEnd={handleScrollEnd}>
-        {loading ? (
-          <View className="flex-1 items-center justify-center p-8">
-            <Text className="text-gray-400">Loading...</Text>
-          </View>
-        ) : expenses.length === 0 ? (
-          <View className="flex-1 items-center justify-center p-8">
-            <Text className="text-gray-400">No expenses yet</Text>
-          </View>
-        ) : (
-          expenses.map((expense) => (
-            <View
-              key={expense.id}
-              className="flex-row items-center justify-between border-b border-gray-100 p-4">
-              <View className="flex-1 flex-row items-center">
-                <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-                  <Ionicons
-                    name={expense.category?.icon || 'folder'}
-                    size={20}
-                    color={expense.category?.color || '#666'}
-                  />
-                </View>
-                <View className="flex-1">
-                  <Text className="font-medium text-gray-900">{expense.description}</Text>
-                  <Text className="text-sm text-gray-400">
-                    {new Date(expense.created_at).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </Text>
-                </View>
-              </View>
-              <View className="flex-row items-center">
-                <Text className="mr-4 text-lg font-semibold text-red-600">
-                  -₹{expense.amount.toLocaleString()}
-                </Text>
-                <TouchableOpacity onPress={() => handleDeleteExpense(expense.id)} className="p-2">
-                  <Ionicons name="trash-outline" size={20} color="#EF4444" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))
-        )}
-      </ScrollView>
+      <ExpenseList 
+        expenses={expenses} 
+        loading={loading} 
+        onDeleteExpense={handleDeleteExpense}
+      />
 
       {/* Action Buttons */}
       {!isScrolling && (
-        <Animated.View
-          className="absolute bottom-4 right-4 flex-row"
+        <Animated.View 
+          className="absolute bottom-4 right-4 flex-row" 
           style={{ bottom: bottom + 16 }}
           entering={FadeIn.duration(200)}
-          exiting={FadeOut.duration(200)}>
+          exiting={FadeOut.duration(200)}
+        >
           <TouchableOpacity
             className="mr-4 h-16 w-16 items-center justify-center rounded-full bg-blue-600 shadow-lg"
-            onPress={() => navigation.navigate('Reports')}>
+            onPress={() => navigation.navigate('Reports')}
+          >
             <Ionicons name="bar-chart" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             className="mr-4 h-16 w-16 items-center justify-center rounded-full bg-blue-500 shadow-lg"
-            onPress={() => navigation.navigate('AI')}>
+            onPress={() => navigation.navigate('AI')}
+          >
             <Ionicons name="chatbubble-ellipses" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
             className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg"
-            onPress={handlePresentModal}>
+            onPress={handlePresentModal}
+          >
             <Text className="text-2xl font-bold text-white">+</Text>
           </TouchableOpacity>
         </Animated.View>
