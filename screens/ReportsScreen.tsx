@@ -145,6 +145,7 @@ export default function ReportsScreen() {
             <View className="mt-4 flex-row flex-wrap justify-center px-4">
               {categoryData.map((item, index) => {
                 const exceededAmount = categoryExceedances[item.label?.text || ''] || 0;
+                const percentage = ((item.value / totalExpense) * 100).toFixed(1);
                 return (
                   <View key={index} className="mb-2 mr-4 flex-row items-center">
                     <View
@@ -153,7 +154,7 @@ export default function ReportsScreen() {
                     />
                     <View>
                       <Text className="text-sm text-gray-600">
-                        {item.label?.text} (₹{item.value.toLocaleString()})
+                        {item.label?.text} (₹{item.value.toLocaleString()} - {percentage}%)
                       </Text>
                       {exceededAmount > 0 && (
                         <Text className="text-xs text-red-500">

@@ -48,11 +48,8 @@ export default function ExpenseScreen() {
     fetchExpenses();
   }, []);
 
-  const handleAddExpense = async (
-    amount: number,
-    description: string,
-    categoryId: string | null
-  ) => {
+  const handleAddExpense = async (amount: number, description: string, categoryId: string | null) => {
+    if (!categoryId) return;
     try {
       const newExpense = await addExpense({
         amount,
@@ -61,11 +58,11 @@ export default function ExpenseScreen() {
         user_id: session?.user?.id || '',
         metadata: {},
       });
-      setExpenses([newExpense, ...expenses]);
+      
+      setExpenses((prev) => [newExpense, ...prev]);
       bottomSheetModalRef.current?.dismiss();
     } catch (error) {
-      console.log('error', error);
-      Alert.alert('Error', 'Failed to add expense');
+      console.error('Error adding expense:', error);
     }
   };
 

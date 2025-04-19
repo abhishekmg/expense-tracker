@@ -3,6 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx",
+    "moduleResolution": "node16",
+    "module": "Node16",
 
     "baseUrl": ".",
     "paths": {

@@ -44,8 +44,9 @@ export default function ExpenseList({ expenses, loading, onDeleteExpense, showDe
               <View className="flex-1 flex-row items-center">
                 <View
                   className="mr-3 h-10 w-10 items-center justify-center rounded-full"
-                  style={{ backgroundColor: expense.category?.color || '#666' }}>
-                  <Ionicons name={expense.category?.icon || 'folder'} size={20} color="#fff" />
+                  // style={{ backgroundColor: expense.category?.color || '#666' }}
+                  >
+                  <Text className="text-2xl">{expense.category?.icon || '📁'}</Text>
                 </View>
                 <View className="flex-1">
                   <Text className="font-medium text-gray-900">{expense.description}</Text>

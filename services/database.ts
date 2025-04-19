@@ -43,7 +43,20 @@ export const getExpenses = async (month?: number): Promise<Expense[]> => {
 export const addExpense = async (
   expense: Omit<Expense, 'id' | 'created_at' | 'updated_at'>
 ): Promise<Expense> => {
-  const { data, error } = await supabase.from('expenses').insert(expense).select().single();
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert(expense)
+    .select(`
+      *,
+      category:categories (
+        id,
+        name,
+        icon,
+        color,
+        limit
+      )
+    `)
+    .single();
 
   if (error) throw error;
   return data;
