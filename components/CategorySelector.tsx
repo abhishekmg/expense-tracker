@@ -6,7 +6,7 @@ import EmojiSelector from 'react-native-emoji-selector';
 import { getCategories, addCategory } from '../services/database';
 import { Category } from '../types/database';
 import { Session } from '@supabase/supabase-js';
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 interface CategorySelectorProps {
   onClose: () => void;
   onSelectCategory: (category: Category) => void;
@@ -27,6 +27,8 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
     const [newCategoryLimit, setNewCategoryLimit] = useState('');
     const [selectedEmoji, setSelectedEmoji] = useState('📁');
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+    const { bottom } = useSafeAreaInsets();
 
     useImperativeHandle(ref, () => ({
       present: () => bottomSheetModalRef.current?.present(),
@@ -114,7 +116,7 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
     );
 
     const renderCreateCategoryForm = () => (
-      <View className="flex-1">
+      <View className="">
         <View className="px-4 pt-4">
           <View className="mb-4 flex-row items-center justify-between">
             <Text className="text-xl font-semibold text-gray-900">Create Category</Text>
@@ -125,7 +127,7 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
         </View>
 
         {showEmojiPicker ? (
-          <View className="flex-1">
+          <View className="">
             <EmojiSelector
               onEmojiSelected={(emoji) => {
                 setSelectedEmoji(emoji);
@@ -138,7 +140,7 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
           </View>
         ) : (
           <ScrollView className="px-4">
-            <View className="space-y-4">
+            <View className="flex-col gap-4">
               <View>
                 <Text className="mb-2 text-sm text-gray-600">Category Icon</Text>
                 <TouchableOpacity 
@@ -222,9 +224,12 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
       <BottomSheetModal
         ref={bottomSheetModalRef}
         snapPoints={['75%']}
+        enableHandlePanningGesture={false}
+        enablePanDownToClose={false}
+        enableContentPanningGesture={false}
         onDismiss={onClose}
         backdropComponent={renderBackdrop}>
-        <BottomSheetView className="flex-1">
+        <BottomSheetView style={{ paddingBottom: bottom }}>
           {isCreating ? renderCreateCategoryForm() : renderCategoryList()}
         </BottomSheetView>
       </BottomSheetModal>
