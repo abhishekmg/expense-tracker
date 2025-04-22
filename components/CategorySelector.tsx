@@ -127,7 +127,13 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
         </View>
 
         {showEmojiPicker ? (
-          <View className="">
+          <View className="h-full">
+            <View className="px-4 py-3 border-b border-gray-200 flex-row items-center justify-between">
+              <Text className="text-lg font-semibold text-gray-900">Select Emoji</Text>
+              <TouchableOpacity onPress={() => setShowEmojiPicker(false)}>
+                <Text className="text-blue-500 font-medium">Cancel</Text>
+              </TouchableOpacity>
+            </View>
             <EmojiSelector
               onEmojiSelected={(emoji) => {
                 setSelectedEmoji(emoji);
@@ -136,6 +142,7 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
               showSearchBar
               showTabs={false}
               columns={8}
+              
             />
           </View>
         ) : (
@@ -223,13 +230,13 @@ const CategorySelector = forwardRef<CategorySelectorRef, CategorySelectorProps>(
     return (
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        snapPoints={['75%']}
+        snapPoints={[showEmojiPicker ? '95%' : '75%']}
         enableHandlePanningGesture={false}
         enablePanDownToClose={false}
         enableContentPanningGesture={false}
         onDismiss={onClose}
         backdropComponent={renderBackdrop}>
-        <BottomSheetView style={{ paddingBottom: bottom }}>
+        <BottomSheetView style={{ paddingBottom: bottom || 16 }}>
           {isCreating ? renderCreateCategoryForm() : renderCategoryList()}
         </BottomSheetView>
       </BottomSheetModal>

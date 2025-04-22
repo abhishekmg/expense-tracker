@@ -113,7 +113,7 @@ export default function ReportsScreen() {
           <TouchableOpacity
             key={month}
             onPress={() => setSelectedMonth(index)}
-            className={`mr-3 rounded-full border border-gray-300 px-4 py-2 ${
+            className={`mr-3 rounded-full border border-gray-300 px-4 py-2 h-[35px] ${
               selectedMonth === index ? 'bg-blue-500' : 'bg-gray-100'
             }`}>
             <Text

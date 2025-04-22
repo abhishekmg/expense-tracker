@@ -96,88 +96,91 @@ export default function AIScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1">
-        <View className="p-4 border-b border-gray-200">
-          <Text className="text-xl font-bold text-gray-900">AI Assistant</Text>
-          <Text className="text-sm text-gray-500">Ask me anything about your expenses</Text>
-        </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1"
+        // keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+        <View className="flex-1">
+          <View className="p-4 border-b border-gray-200">
+            <Text className="text-xl font-bold text-gray-900">AI Assistant</Text>
+            <Text className="text-sm text-gray-500">Ask me anything about your expenses</Text>
+          </View>
 
-        <ScrollView
-          ref={scrollViewRef}
-          className="flex-1 p-4"
-          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-        >
-          {messages.map((message) => (
-            <View
-              key={message.id}
-              className={`mb-4 ${
-                message.isUser ? 'items-end' : 'items-start'
-              }`}
-            >
+          <ScrollView
+            ref={scrollViewRef}
+            className=" p-4"
+            onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+          >
+            {messages.map((message) => (
               <View
-                className={`max-w-[80%] rounded-lg p-3 ${
-                  message.isUser
-                    ? 'bg-blue-500 rounded-br-none'
-                    : 'bg-gray-100 rounded-bl-none'
+                key={message.id}
+                className={`mb-4 ${
+                  message.isUser ? 'items-end' : 'items-start'
                 }`}
               >
-                <Text
-                  className={`text-sm ${
-                    message.isUser ? 'text-white' : 'text-gray-900'
+                <View
+                  className={`max-w-[80%] rounded-lg p-3 ${
+                    message.isUser
+                      ? 'bg-blue-500 rounded-br-none'
+                      : 'bg-gray-100 rounded-bl-none'
                   }`}
                 >
-                  {message.text}
-                </Text>
-                <Text
-                  className={`text-xs mt-1 ${
-                    message.isUser ? 'text-blue-100' : 'text-gray-500'
-                  }`}
-                >
-                  {message.timestamp.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
+                  <Text
+                    className={`text-sm ${
+                      message.isUser ? 'text-white' : 'text-gray-900'
+                    }`}
+                  >
+                    {message.text}
+                  </Text>
+                  <Text
+                    className={`text-xs mt-1 ${
+                      message.isUser ? 'text-blue-100' : 'text-gray-500'
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
+                </View>
               </View>
-            </View>
-          ))}
-          {isLoading && (
-            <View className="items-start mb-4">
-              <View className="bg-gray-100 rounded-lg rounded-bl-none p-3">
-                <ActivityIndicator size="small" color="#666" />
+            ))}
+            {isLoading && (
+              <View className="items-start mb-4">
+                <View className="bg-gray-100 rounded-lg rounded-bl-none p-3">
+                  <ActivityIndicator size="small" color="#666" />
+                </View>
               </View>
-            </View>
-          )}
-        </ScrollView>
+            )}
+          </ScrollView>
 
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="border-t border-gray-200 p-4"
-        >
-          <View className="flex-row items-center">
-            <TextInput
-              className="flex-1 bg-gray-100 rounded-full px-4 py-2 mr-2"
-              placeholder="Ask about your expenses..."
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-            />
-            <TouchableOpacity
-              onPress={handleSend}
-              disabled={isLoading}
-              className={`p-2 rounded-full ${
-                isLoading ? 'bg-gray-300' : 'bg-blue-500'
-              }`}
-            >
-              <Ionicons
-                name="send"
-                size={20}
-                color={isLoading ? '#666' : 'white'}
+          <View className="border-t border-gray-200 p-4">
+            <View className="flex-row items-center">
+              <TextInput
+                className="flex-1 bg-gray-100 rounded-full px-4 py-2 mr-2"
+                placeholder="Ask about your expenses..."
+                value={inputText}
+                onChangeText={setInputText}
+                multiline
               />
-            </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSend}
+                disabled={isLoading}
+                className={`p-2 rounded-full ${
+                  isLoading ? 'bg-gray-300' : 'bg-blue-500'
+                }`}
+              >
+                <Ionicons
+                  name="send"
+                  size={20}
+                  color={isLoading ? '#666' : 'white'}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-        </KeyboardAvoidingView>
-      </View>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 } 

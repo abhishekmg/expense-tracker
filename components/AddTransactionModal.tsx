@@ -6,6 +6,7 @@ import { Category, Expense } from '../types/database';
 import { Session } from '@supabase/supabase-js';
 import CategoryLimitModal from './CategoryLimitModal';
 import CategorySelector from './CategorySelector';
+import { BottomSheetTextInput } from '@gorhom/bottom-sheet';
 
 type Props = {
   onAddTransaction: (amount: number, description: string, categoryId: string | null) => void;
@@ -158,7 +159,7 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
         </TouchableOpacity>
       </View>
 
-      <TextInput
+      <BottomSheetTextInput
         className="mb-4 rounded-lg border border-gray-200 p-3"
         placeholder="Amount"
         keyboardType="numeric"
@@ -179,7 +180,7 @@ export default function AddTransactionModal({ onAddTransaction, onClose, session
         }}
       />
 
-      <TextInput
+      <BottomSheetTextInput
         className="mb-4 rounded-lg border border-gray-200 p-3"
         placeholder="Description"
         value={description}

@@ -58,7 +58,7 @@ export default function ExpenseScreen() {
         user_id: session?.user?.id || '',
         metadata: {},
       });
-      
+
       setExpenses((prev) => [newExpense, ...prev]);
       bottomSheetModalRef.current?.dismiss();
     } catch (error) {
@@ -108,7 +108,7 @@ export default function ExpenseScreen() {
       {/* Header with Options Button */}
       <TouchableOpacity
         onPress={handlePresentOptionsModal}
-        className="h-10 w-10 items-center justify-center">
+        className="h-10 w-10 items-center justify-center ml-2 mt-2">
         <Ionicons name="options-outline" size={24} color="#000" />
       </TouchableOpacity>
 
@@ -125,16 +125,19 @@ export default function ExpenseScreen() {
       </View>
 
       {/* Expenses List */}
-      <ExpenseList 
-        expenses={expenses} 
-        loading={loading} 
-        onDeleteExpense={handleDeleteExpense}
-      />
+      <View className="h-[400px] mb-[82px]">
+        <ExpenseList
+          expenses={expenses}
+          loading={loading}
+          onDeleteExpense={handleDeleteExpense}
+        />
+      </View>
+
 
       {/* Action Buttons */}
       {!isScrolling && (
-        <Animated.View 
-          className="absolute bottom-4 right-4 flex-row" 
+        <Animated.View
+          className="absolute bottom-4 right-[25%] flex-row"
           style={{ bottom: bottom + 16 }}
           entering={FadeIn.duration(200)}
           exiting={FadeOut.duration(200)}
@@ -146,16 +149,16 @@ export default function ExpenseScreen() {
             <Ionicons name="bar-chart" size={24} color="white" />
           </TouchableOpacity>
           <TouchableOpacity
-            className="mr-4 h-16 w-16 items-center justify-center rounded-full bg-blue-500 shadow-lg"
-            onPress={() => navigation.navigate('AI')}
-          >
-            <Ionicons name="chatbubble-ellipses" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg"
+            className="h-16 w-16 items-center justify-center rounded-full bg-red-600 shadow-lg mr-4"
             onPress={handlePresentModal}
           >
             <Text className="text-2xl font-bold text-white">+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className=" h-16 w-16 items-center justify-center rounded-full bg-blue-500 shadow-lg"
+            onPress={() => navigation.navigate('AI')}
+          >
+            <Ionicons name="chatbubble-ellipses" size={24} color="white" />
           </TouchableOpacity>
         </Animated.View>
       )}
